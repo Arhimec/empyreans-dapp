@@ -1,37 +1,35 @@
-'use client';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { DappProvider } from "@multiversx/sdk-dapp/wrappers/DappProvider";
-import { SignTransactionsModals } from "@multiversx/sdk-dapp/UI/SignTransactionsModals";
-import { TransactionsToastList } from "@multiversx/sdk-dapp/UI/TransactionsToastList";
+/* Fix styling for MultiversX default Wallet Connect buttons */
+.wallet-buttons > a, .wallet-buttons > button {
+  background-color: #1a1a1c !important;
+  border: 1px solid #2a2a2c !important;
+  color: white !important;
+  border-radius: 0.75rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+  padding: 12px !important;
+  transition: all 0.2s ease-in-out !important;
+}
 
-const inter = Inter({ subsets:["latin"] });
+.wallet-buttons > a:hover, .wallet-buttons > button:hover {
+  border-color: #23f7dd !important;
+  box-shadow: 0 0 10px rgba(35, 247, 221, 0.2) !important;
+}
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <title>Empyreans | Owner Dashboard</title>
-        {/* FontAwesome for Icons */}
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-      </head>
-      <body className={`${inter.className} bg-mvxdark text-gray-200 min-h-screen selection:bg-mvxteal selection:text-black`}>
-        
-        {/* MultiversX Dapp Provider wrapped around the app */}
-        <DappProvider 
-          environment="mainnet"
-          customNetworkConfig={{
-            name: 'customConfig',
-            walletConnectV2ProjectId: '4fbcf6734aaf8c92da6058646a968cd7'
-          }}
-        >
-          <TransactionsToastList />
-          <SignTransactionsModals />
-          {children}
-        </DappProvider>
-
-      </body>
-    </html>
-  );
+/* Custom Dark Mode Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2c;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #23f7dd;
 }
