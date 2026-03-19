@@ -13,12 +13,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <title>Empyreans | Owner Dashboard</title>
-        {/* FontAwesome for Icons */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
       <body className={`${inter.className} bg-mvxdark text-gray-200 min-h-screen selection:bg-mvxteal selection:text-black`}>
-        
-        {/* MultiversX Dapp Provider wrapped around the app */}
         <DappProvider 
           environment="mainnet"
           customNetworkConfig={{
@@ -30,7 +27,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SignTransactionsModals />
           {children}
         </DappProvider>
-
       </body>
     </html>
   );
