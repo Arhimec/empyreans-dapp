@@ -15,8 +15,7 @@ import NFTExplorer from './NFT/NFTExplorer';
 import VideoPlayer from './UI/VideoPlayer';
 
 const COLLECTION_ID = 'EMP-897b49';
-const VAULT_ADDRESS = 'erd18x0qllr9h9xy4xvdd6pycg8px3jh8dk66x0kq2g3eyq4meyp6must0qqzs2';
-
+const VAULT_ADDRESS = 'erd1x4s3vlvhlct40st946dgf4zcf0fqhyd9t2kaesjd52vn44d2awdqh004uw';
 
 export default function Dashboard() {
   const isLoggedIn = useGetIsLoggedIn();
@@ -69,7 +68,6 @@ export default function Dashboard() {
     fetchNFTs();
   }, [isLoggedIn, address]);
 
-
   // Helper: Build Category/Value dropdown dynamically
   const extractTraits = (nftData: any[]) => {
     const dict: Record<string, Set<string>> = {};
@@ -106,26 +104,37 @@ export default function Dashboard() {
     });
   },[nfts, searchQuery, selectedCategory, selectedValue]);
 
+  // Utility: Hex Encoding without Buffer for browser safety
+  const toHex = (str: string) => {
+    return Array.from(str)
+      .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
+      .join('');
+  };
 
-  // 3. Transfer Action
+  // 3. Transfer Action (Refined with MultiversX Skills)
   const handleTransferToVault = async (nft: any) => {
     if (!isLoggedIn || !address) return;
 
     try {
-      // Encode Token Identifier (ESDT) and Nonce to hex format
-      const tokenIdentifierHex = Buffer.from(nft.collection).toString('hex');
-      const nonceHex = nft.nonce.toString(16).padStart(2, '0');
-      const quantityHex = '01'; // Standard NFT amount is always 1
+      // 1. Validate & Encode Address
+      const receiverAddressHex = Address.fromBech32(VAULT_ADDRESS).hex();
       
-      // Convert Vault Address to hex
-      const receiverAddressHex = new Address(VAULT_ADDRESS).hex();
+      // 2. Encode Token ID and Nonce
+      // Note: nft.collection is the collection ID (e.g. EMP-897b49)
+      const tokenIdentifierHex = toHex(nft.collection);
+      const nonceHex = nft.nonce.toString(16).padStart(2, '0');
+      const quantityHex = '01'; // Standard NFT amount is 1
+      
+      // 3. Construct Data Field
+      // Format: ESDTNFTTransfer@{TokenIdHex}@{NonceHex}@{QuantityHex}@{ToAddressHex}
+      const txData = `ESDTNFTTransfer@${tokenIdentifierHex}@${nonceHex}@${quantityHex}@${receiverAddressHex}`;
 
-      // Transaction structure for ESDTNFTTransfer
+      // 4. Create Transaction Profile
       const transferTransaction = {
         value: '0',
-        data: `ESDTNFTTransfer@${tokenIdentifierHex}@${nonceHex}@${quantityHex}@${receiverAddressHex}`,
-        receiver: address, // Receiver is SENDER for ESDTNFTTransfer
-        gasLimit: 1000000, // Safe limit for NFT transfer
+        data: txData,
+        receiver: address, // In ESDTNFTTransfer, receiver of the TX must be the SENDER
+        gasLimit: 1000000,
         chainID: '1' // Mainnet
       };
 
@@ -133,15 +142,20 @@ export default function Dashboard() {
         transactions: [transferTransaction],
         transactionsDisplayInfo: {
           processingMessage: `Transferring ${nft.name || nft.identifier} to vault...`,
-          errorMessage: 'Transfer failed. Please check your balance or signature.',
+          errorMessage: 'Transfer failed. Please check your signature or address.',
           successMessage: 'NFT successfully sent to the vault.'
         }
       });
     } catch (err: any) {
       console.error('Transfer preparation error:', err);
-      alert(`Failed to prepare transfer: ${err.message}`);
+      // More descriptive error handling for the user
+      const msg = err.message === 'ErrAddressCannotCreate' 
+        ? 'Invalid Vault Address checksum. Please check the address.' 
+        : err.message;
+      alert(`Transfer Error: ${msg}`);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-mvxdark overflow-hidden">
