@@ -133,10 +133,11 @@ export default function Dashboard() {
       const transferTransaction = {
         value: '0',
         data: txData,
-        receiver: address, // In ESDTNFTTransfer, receiver of the TX must be the SENDER
+        receiver: VAULT_ADDRESS, // Pointing directly to the vault as requested
         gasLimit: 1000000,
         chainID: '1' // Mainnet
       };
+
 
       await sendTransactions({
         transactions: [transferTransaction],
