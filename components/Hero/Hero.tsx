@@ -54,55 +54,12 @@ const Hero = () => {
               Explore Collection
               <ArrowUpRight className="w-5 h-5 ml-2" />
             </button>
-            <button className="btn-premium px-8 py-4 text-lg">
-              Watch Trailer
-            </button>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 0.5 }}
-            className="mt-20 w-full max-w-5xl aspect-[21/9] rounded-3xl overflow-hidden glass-card p-1 animate-float"
-          >
-            <div className="w-full h-full rounded-[20px] overflow-hidden relative">
-              <img 
-                src="https://images.unsplash.com/photo-1634152962476-4b8a00e1915c?q=80&w=1200&auto=format&fit=crop" 
-                alt="Empyreans Banner" 
-                className="w-full h-full object-cover opacity-60 scale-105 hover:scale-100 transition-all duration-1000"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-mvxdark via-transparent to-transparent" />
-              
-              <div className="absolute bottom-8 left-8 flex items-center gap-6">
-                <div className="w-24 h-24 rounded-2xl border-2 border-mvxteal/30 bg-mvxsurface p-1 shadow-2xl">
-                    <img 
-                      src="https://mediadev.oox.art/nfts/collections/OLVGROVE-90fae5/profilePicture.webp" 
-                      alt="Empyreans Logo" 
-                      className="w-full h-full object-cover rounded-xl"
-                    />
-                </div>
-                <div className="text-left">
-                    <h3 className="text-2xl font-bold text-white tracking-tight">Empyreans Genesis</h3>
-                    <p className="text-mvxteal text-sm font-bold uppercase tracking-widest opacity-80">Collection Verified</p>
-                </div>
-              </div>
-
-              <div className="absolute bottom-8 right-8 flex gap-3">
-                <div className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/5 text-center min-w-[100px]">
-                    <div className="text-xl font-bold text-white">100+</div>
-                    <div className="text-[10px] text-mvxmuted uppercase font-black tracking-widest">Items</div>
-                </div>
-                <div className="px-4 py-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/5 text-center min-w-[100px]">
-                    <div className="text-xl font-bold text-white">0.5 EGLD</div>
-                    <div className="text-[10px] text-mvxmuted uppercase font-black tracking-widest">Floor Price</div>
-                </div>
-              </div>
-            </div>
           </motion.div>
         </div>
       </div>
     </div>
   );
 };
+
 
 export default Hero;

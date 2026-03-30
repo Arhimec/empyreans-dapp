@@ -12,8 +12,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TopNav from './Navigation/TopNav';
 import Hero from './Hero/Hero';
 import NFTExplorer from './NFT/NFTExplorer';
-import VideoPlayer from './UI/VideoPlayer';
-
 const COLLECTION_ID = 'EMP-897b49';
 const VAULT_ADDRESS = 'erd18x0qllr9h9xy4xvdd6pycg8px3jh8dk66x0kq2g3eyq4meyp6must0qqzs';
 
@@ -23,12 +21,13 @@ export default function Dashboard() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // --- Dashboard Data State ---
+
   const [nfts, setNfts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'media' | 'posts'>('media');
   
   // --- Filter & Search State ---
+
   const [searchQuery, setSearchQuery] = useState('');
   const [traitDictionary, setTraitDictionary] = useState<Record<string, Set<string>>>({});
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -209,44 +208,24 @@ export default function Dashboard() {
       <main className="relative pt-20">
         <Hero />
         
-        <div className="max-w-7xl mx-auto px-6 mb-12">
-            <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white/5 border border-white/5 w-fit">
-                <button 
-                    onClick={() => setActiveTab('media')} 
-                    className={`px-8 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'media' ? 'bg-mvxteal/90 text-black shadow-[0_0_20px_rgba(35,247,221,0.25)]' : 'text-mvxmuted hover:text-white'}`}
-                >
-                    Explorer
-                </button>
-                <button 
-                    onClick={() => setActiveTab('posts')} 
-                    className={`px-8 py-2.5 rounded-xl text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'posts' ? 'bg-mvxteal/90 text-black shadow-[0_0_20px_rgba(35,247,221,0.25)]' : 'text-mvxmuted hover:text-white'}`}
-                >
-                    Trailers
-                </button>
-            </div>
-        </div>
-
         <div className="max-w-7xl mx-auto px-6 pb-32">
-            {activeTab === 'media' && (
-                <NFTExplorer 
-                    nfts={filteredNfts}
-                    loading={loading}
-                    error={error}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                    traitDictionary={traitDictionary}
-                    selectedCategory={selectedCategory}
-                    setSelectedCategory={setSelectedCategory}
-                    selectedValue={selectedValue}
-                    setSelectedValue={setSelectedValue}
-                    onOpenLogin={() => setIsLoginModalOpen(true)}
-                    onTransfer={handleTransferToVault}
-                />
-            )}
-
-            {activeTab === 'posts' && <VideoPlayer />}
+            <NFTExplorer 
+                nfts={filteredNfts}
+                loading={loading}
+                error={error}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                traitDictionary={traitDictionary}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                selectedValue={selectedValue}
+                setSelectedValue={setSelectedValue}
+                onOpenLogin={() => setIsLoginModalOpen(true)}
+                onTransfer={handleTransferToVault}
+            />
         </div>
       </main>
+
 
 
       <footer className="py-20 border-t border-white/5 relative z-10 bg-mvxdark">

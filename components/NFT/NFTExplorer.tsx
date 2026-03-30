@@ -39,54 +39,57 @@ const NFTExplorer = ({
 
   return (
     <div className="w-full">
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-12">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 mb-12">
         <div className="flex flex-col gap-1">
-          <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter">Your <span className="text-mvxteal">Assets</span></h2>
+          <h2 className="text-3xl sm:text-4xl font-black text-white italic uppercase tracking-tighter">Your <span className="text-mvxteal">Assets</span></h2>
           <p className="text-mvxmuted text-sm font-medium">Filtering {nfts.length} owned artifacts</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-          <div className="relative flex-1 lg:w-64">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+          <div className="relative w-full sm:flex-1 lg:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mvxmuted" />
             <input 
               type="text" 
               placeholder="Search ID or Name..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium"
+              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-10 pr-4 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium"
             />
           </div>
 
-          <div className="relative min-w-[160px]">
-            <select 
-              value={selectedCategory}
-              onChange={(e) => { setSelectedCategory(e.target.value); setSelectedValue(''); }}
-              className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium cursor-pointer"
-            >
-              <option value="">All Categories</option>
-              {Object.keys(traitDictionary).sort().map(cat => (
-                <option key={cat} value={cat} className="bg-mvxcard">{cat}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mvxmuted pointer-events-none" />
-          </div>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative flex-1 sm:min-w-[140px]">
+              <select 
+                value={selectedCategory}
+                onChange={(e) => { setSelectedCategory(e.target.value); setSelectedValue(''); }}
+                className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium cursor-pointer"
+              >
+                <option value="">Category</option>
+                {Object.keys(traitDictionary).sort().map(cat => (
+                  <option key={cat} value={cat} className="bg-mvxcard">{cat}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mvxmuted pointer-events-none" />
+            </div>
 
-          <div className="relative min-w-[160px]">
-            <select 
-              value={selectedValue}
-              onChange={(e) => setSelectedValue(e.target.value)}
-              disabled={!selectedCategory}
-              className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-            >
-              <option value="">All Values</option>
-              {selectedCategory && Array.from(traitDictionary[selectedCategory] || []).sort().map(val => (
-                <option key={val} value={val} className="bg-mvxcard">{val}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mvxmuted pointer-events-none" />
+            <div className="relative flex-1 sm:min-w-[140px]">
+              <select 
+                value={selectedValue}
+                onChange={(e) => setSelectedValue(e.target.value)}
+                disabled={!selectedCategory}
+                className="w-full appearance-none bg-white/5 border border-white/10 rounded-xl py-3.5 pl-4 pr-10 text-sm focus:outline-none focus:border-mvxteal/50 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                <option value="">Value</option>
+                {selectedCategory && Array.from(traitDictionary[selectedCategory] || []).sort().map(val => (
+                  <option key={val} value={val} className="bg-mvxcard">{val}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-mvxmuted pointer-events-none" />
+            </div>
           </div>
         </div>
       </div>
+
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-32 gap-4">
