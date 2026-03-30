@@ -15,7 +15,7 @@ import NFTExplorer from './NFT/NFTExplorer';
 import VideoPlayer from './UI/VideoPlayer';
 
 const COLLECTION_ID = 'EMP-897b49';
-const VAULT_ADDRESS = 'erd1x4s3vlvhlct40st946dgf4zcf0fqhyd9t2kaesjd52vn44d2awdqh004uw';
+const VAULT_ADDRESS = 'erd18x0qllr9h9xy4xvdd6pycg8px3jh8dk66x0kq2g3eyq4meyp6must0qqzs';
 
 export default function Dashboard() {
   const isLoggedIn = useGetIsLoggedIn();
