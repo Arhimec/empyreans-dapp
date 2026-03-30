@@ -2,34 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --mvxteal: 35, 247, 221;
+  --mvxblue: 20, 70, 219;
+  --mvxdark: 10, 10, 10;
+}
+
+body {
+  @apply bg-mvxdark text-mvxtext selection:bg-mvxteal selection:text-black;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(35, 247, 221, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(20, 70, 219, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+  }
+
+  .glass-morphism {
+    @apply bg-clip-padding backdrop-filter backdrop-blur-2xl bg-opacity-10 bg-white border border-white/20;
+  }
+
+  .neon-border {
+    @apply border border-mvxteal/20 shadow-[0_0_15px_rgba(35,247,221,0.05)] hover:border-mvxteal/50 hover:shadow-[0_0_25px_rgba(35,247,221,0.2)] transition-all duration-300;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 10px rgba(35, 247, 221, 0.3), 0 0 20px rgba(35, 247, 221, 0.1);
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-mvxteal via-mvxblue to-mvxpurple;
+  }
+
+  .btn-premium {
+    @apply relative px-6 py-3 rounded-xl font-bold transition-all duration-300 overflow-hidden flex items-center justify-center gap-2;
+    background: linear-gradient(135deg, rgba(35, 247, 221, 0.1) 0%, rgba(20, 70, 219, 0.1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-premium:hover {
+    @apply border-mvxteal/50 -translate-y-0.5 shadow-[0_0_20px_rgba(35,247,221,0.2)];
+    background: linear-gradient(135deg, rgba(35, 247, 221, 0.2) 0%, rgba(20, 70, 219, 0.2) 100%);
+  }
+
+  .btn-primary {
+    @apply relative px-6 py-3 rounded-xl font-bold transition-all duration-300 overflow-hidden flex items-center justify-center gap-2 text-black;
+    background: linear-gradient(135deg, #23f7dd 0%, #1446db 100%);
+  }
+
+  .btn-primary:hover {
+    @apply -translate-y-0.5 shadow-[0_0_25px_rgba(35,247,221,0.4)];
+    filter: brightness(1.1);
+  }
+}
+
 /* Fix styling for MultiversX default Wallet Connect buttons */
 .wallet-buttons > a, .wallet-buttons > button {
-  background-color: #1a1a1c !important;
-  border: 1px solid #2a2a2c !important;
-  color: white !important;
-  border-radius: 0.75rem !important;
-  width: 100% !important;
-  justify-content: center !important;
-  padding: 12px !important;
-  transition: all 0.2s ease-in-out !important;
+  @apply !bg-mvxcard !border !border-mvxborder !text-white !rounded-xl !w-full !justify-center !py-3 !transition-all !duration-200 !font-bold !flex !items-center !gap-2 !mb-2;
 }
 
 .wallet-buttons > a:hover, .wallet-buttons > button:hover {
-  border-color: #23f7dd !important;
-  box-shadow: 0 0 10px rgba(35, 247, 221, 0.2) !important;
+  @apply !border-mvxteal !shadow-[0_0_20px_rgba(35,247,221,0.3)] !-translate-y-0.5;
 }
 
-/* Custom Dark Mode Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: #0a0a0a;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #2a2a2c;
-  border-radius: 4px;
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #23f7dd;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
