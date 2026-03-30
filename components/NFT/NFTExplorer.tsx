@@ -18,6 +18,8 @@ interface NFTExplorerProps {
   setSelectedValue: (val: string) => void;
   onOpenLogin: () => void;
   onTransfer: (nft: any) => void;
+  selectedNfts: any[];
+  onToggleSelection: (nft: any) => void;
 }
 
 const NFTExplorer = ({
@@ -32,7 +34,9 @@ const NFTExplorer = ({
   selectedValue,
   setSelectedValue,
   onOpenLogin,
-  onTransfer
+  onTransfer,
+  selectedNfts,
+  onToggleSelection
 }: NFTExplorerProps) => {
 
   const isLoggedIn = useGetIsLoggedIn();
@@ -129,7 +133,14 @@ const NFTExplorer = ({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {nfts.map((nft, index) => (
-            <NFTCard key={nft.identifier} nft={nft} index={index} onTransfer={onTransfer} />
+            <NFTCard 
+              key={nft.identifier} 
+              nft={nft} 
+              index={index} 
+              onTransfer={onTransfer}
+              isSelected={selectedNfts.some(item => item.identifier === nft.identifier)}
+              onToggle={() => onToggleSelection(nft)}
+            />
           ))}
         </div>
       )}
@@ -138,7 +149,19 @@ const NFTExplorer = ({
 };
 
 
-const NFTCard = ({ nft, index, onTransfer }: { nft: any, index: number, onTransfer: (nft: any) => void }) => {
+const NFTCard = ({ 
+  nft, 
+  index, 
+  onTransfer, 
+  isSelected, 
+  onToggle 
+}: { 
+  nft: any, 
+  index: number, 
+  onTransfer: (nft: any) => void,
+  isSelected: boolean,
+  onToggle: () => void 
+}) => {
   const imageUrl = (nft.media && nft.media.length > 0) ? nft.media[0].url : nft.url;
 
   return (
@@ -146,44 +169,56 @@ const NFTCard = ({ nft, index, onTransfer }: { nft: any, index: number, onTransf
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: Math.min(index * 0.05, 1) }}
-      className="group"
+      className="group relative"
     >
-      <div className="glass-card rounded-[2rem] p-3 transition-all duration-500 hover:border-mvxteal/40 hover:shadow-[0_0_30px_rgba(35,247,221,0.1)] h-full flex flex-col">
+      <div 
+        onClick={onToggle}
+        className={`glass-card rounded-[2rem] p-3 transition-all duration-500 cursor-pointer flex flex-col h-full ${isSelected ? 'border-mvxteal shadow-[0_0_40px_rgba(35,247,221,0.2)]' : 'hover:border-mvxteal/40 hover:shadow-[0_0_30px_rgba(35,247,221,0.1)]'}`}
+      >
         <div className="relative aspect-square rounded-[1.5rem] overflow-hidden bg-mvxdark mb-4">
           <img 
             src={imageUrl} 
             alt={nft.name} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            className={`w-full h-full object-cover transition-transform duration-500 ${isSelected ? 'scale-105' : 'group-hover:scale-110'}`}
             loading="lazy"
           />
-          <div className="absolute top-3 right-3 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black text-mvxteal">
+          
+          {/* Custom Neon Checkbox */}
+          <div 
+            className={`absolute top-4 left-4 w-6 h-6 rounded-lg border-2 transition-all flex items-center justify-center ${isSelected ? 'bg-mvxteal border-mvxteal shadow-[0_0_15px_rgba(35,247,221,0.6)]' : 'bg-black/40 border-white/20'}`}
+          >
+            {isSelected && <Shield className="w-4 h-4 text-black fill-current" />}
+          </div>
+
+          <div className="absolute top-4 right-4 px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10 text-[10px] font-black text-white">
             #{nft.nonce}
           </div>
         </div>
         
         <div className="px-2 pb-2 flex-1 flex flex-col">
-            <h3 className="text-white font-bold text-sm truncate uppercase tracking-tight group-hover:text-mvxteal transition-colors">
+            <h3 className={`font-bold text-sm truncate uppercase tracking-tight transition-colors ${isSelected ? 'text-mvxteal' : 'text-white group-hover:text-mvxteal'}`}>
                 {nft.name || 'Anonymous Asset'}
             </h3>
             <div className="flex items-center justify-between mt-2 mb-4">
                 <span className="text-[10px] font-bold text-mvxmuted tracking-wide">{nft.identifier.split('-')[0]}</span>
-                <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center">
-                    <LayoutGrid className="w-3 h-3 text-mvxteal/50" />
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isSelected ? 'bg-mvxteal/20' : 'bg-white/5'}`}>
+                    <LayoutGrid className={`w-3 h-3 ${isSelected ? 'text-mvxteal' : 'text-mvxteal/50'}`} />
                 </div>
             </div>
 
             <button 
-              onClick={() => onTransfer(nft)}
-              className="mt-auto w-full py-2.5 rounded-xl bg-mvxteal/10 border border-mvxteal/20 text-mvxteal text-[10px] font-black uppercase tracking-widest hover:bg-mvxteal hover:text-black transition-all flex items-center justify-center gap-2"
+              onClick={(e) => { e.stopPropagation(); onTransfer(nft); }}
+              className={`mt-auto w-full py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${isSelected ? 'bg-mvxteal text-black' : 'bg-mvxteal/10 border border-mvxteal/20 text-mvxteal hover:bg-mvxteal hover:text-black'}`}
             >
               <Shield className="w-3.5 h-3.5 fill-current" />
-              Transfer to Vault
+              Transfer Single
             </button>
         </div>
       </div>
     </motion.div>
   );
 };
+
 
 
 export default NFTExplorer;

@@ -27,11 +27,11 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   
   // --- Filter & Search State ---
-
   const [searchQuery, setSearchQuery] = useState('');
   const [traitDictionary, setTraitDictionary] = useState<Record<string, Set<string>>>({});
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedValue, setSelectedValue] = useState('');
+  const [selectedNfts, setSelectedNfts] = useState<any[]>([]);
 
   // 1. Fetch NFTs from Blockchain API
   useEffect(() => {
@@ -40,6 +40,7 @@ export default function Dashboard() {
         setNfts([]);
         setLoading(false);
         setTraitDictionary({});
+        setSelectedNfts([]);
         return;
       }
 
@@ -110,34 +111,25 @@ export default function Dashboard() {
       .join('');
   };
 
-  // 3. Transfer Action (Refined with MultiversX Skills)
+  // 3. Individual Transfer Action
   const handleTransferToVault = async (nft: any) => {
     if (!isLoggedIn || !address) return;
 
     try {
-      // 1. Validate & Encode Address
       const receiverAddressHex = Address.fromBech32(VAULT_ADDRESS).hex();
-      
-      // 2. Encode Token ID and Nonce
-      // Note: nft.collection is the collection ID (e.g. EMP-897b49)
       const tokenIdentifierHex = toHex(nft.collection);
       const nonceHex = nft.nonce.toString(16).padStart(2, '0');
-      const quantityHex = '01'; // Standard NFT amount is 1
+      const quantityHex = '01'; 
       
-      // 3. Construct Data Field
-      // Format: ESDTNFTTransfer@{TokenIdHex}@{NonceHex}@{QuantityHex}@{ToAddressHex}
       const txData = `ESDTNFTTransfer@${tokenIdentifierHex}@${nonceHex}@${quantityHex}@${receiverAddressHex}`;
 
-      // 4. Create Transaction Profile
       const transferTransaction = {
         value: '0',
         data: txData,
-        receiver: address, // Protocol REQUIREMENT: Must be sender for ESDTNFTTransfer to user accounts
+        receiver: address, 
         gasLimit: 1000000,
-        chainID: '1' // Mainnet
+        chainID: '1' 
       };
-
-
 
       await sendTransactions({
         transactions: [transferTransaction],
@@ -149,12 +141,62 @@ export default function Dashboard() {
       });
     } catch (err: any) {
       console.error('Transfer preparation error:', err);
-      // More descriptive error handling for the user
-      const msg = err.message === 'ErrAddressCannotCreate' 
-        ? 'Invalid Vault Address checksum. Please check the address.' 
-        : err.message;
-      alert(`Transfer Error: ${msg}`);
+      alert(`Transfer Error: ${err.message}`);
     }
+  };
+
+  // 4. Bulk Transfer Action (MultiESDTNFTTransfer)
+  const handleBulkTransferToVault = async () => {
+    if (!isLoggedIn || !address || selectedNfts.length === 0) return;
+
+    try {
+      const receiverAddressHex = Address.fromBech32(VAULT_ADDRESS).hex();
+      const numTokensHex = selectedNfts.length.toString(16).padStart(2, '0');
+      
+      // MultiESDTNFTTransfer@<receiver>@<num_tokens>@<token1_id>@<nonce1>@<amount1>@...
+      let txData = `MultiESDTNFTTransfer@${receiverAddressHex}@${numTokensHex}`;
+
+      selectedNfts.forEach(nft => {
+        const tokenIdentifierHex = toHex(nft.collection);
+        const nonceHex = nft.nonce.toString(16).padStart(2, '0');
+        const quantityHex = '01'; // Standard NFT amount is 1
+        txData += `@${tokenIdentifierHex}@${nonceHex}@${quantityHex}`;
+      });
+
+      const bulkTransaction = {
+        value: '0',
+        data: txData,
+        receiver: address, // Protocol requirement for direct transfers
+        gasLimit: Math.max(1000000, 500000 + (selectedNfts.length * 300000)), // dynamic gas
+        chainID: '1'
+      };
+
+      await sendTransactions({
+        transactions: [bulkTransaction],
+        transactionsDisplayInfo: {
+          processingMessage: `Sending ${selectedNfts.length} artifacts to vault...`,
+          errorMessage: 'Bulk transfer failed. Please check your signature.',
+          successMessage: `${selectedNfts.length} artifacts successfully moved!`
+        }
+      });
+
+      // Clear selection on success
+      setSelectedNfts([]);
+    } catch (err: any) {
+      console.error('Bulk Transfer Error:', err);
+      alert(`Bulk Transfer Error: ${err.message}`);
+    }
+  };
+
+  const toggleNftSelection = (nft: any) => {
+    setSelectedNfts(prev => {
+      const isSelected = prev.find(item => item.identifier === nft.identifier);
+      if (isSelected) {
+        return prev.filter(item => item.identifier !== nft.identifier);
+      } else {
+        return [...prev, nft];
+      }
+    });
   };
 
 
@@ -163,7 +205,7 @@ export default function Dashboard() {
       {/* 1. NAVIGATION */}
       <TopNav onOpenLogin={() => setIsLoginModalOpen(true)} />
 
-      {/* 2. LOGIN MODAL */}
+      {/* 2. LOGIN MODAL (unchanged) */}
       <AnimatePresence>
         {isLoginModalOpen && !isLoggedIn && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
@@ -207,7 +249,6 @@ export default function Dashboard() {
 
       <main className="relative pt-20">
         <div className="max-w-7xl mx-auto px-6 pb-32">
-
             <NFTExplorer 
                 nfts={filteredNfts}
                 loading={loading}
@@ -221,9 +262,46 @@ export default function Dashboard() {
                 setSelectedValue={setSelectedValue}
                 onOpenLogin={() => setIsLoginModalOpen(true)}
                 onTransfer={handleTransferToVault}
+                selectedNfts={selectedNfts}
+                onToggleSelection={toggleNftSelection}
             />
         </div>
       </main>
+
+      {/* 3. BULK ACTION BAR */}
+      <AnimatePresence>
+        {selectedNfts.length > 0 && (
+          <motion.div 
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-6"
+          >
+            <div className="glass-card rounded-3xl p-4 border-mvxteal/30 shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex items-center justify-between gap-4">
+              <div className="flex flex-col">
+                <span className="text-mvxteal text-xs font-black uppercase tracking-widest leading-none mb-1">Batch Transfer</span>
+                <span className="text-white text-lg font-bold">{selectedNfts.length} Assets Selected</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setSelectedNfts([])}
+                  className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-mvxmuted hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+                <button 
+                  onClick={handleBulkTransferToVault}
+                  className="btn-primary px-6 py-3 shadow-[0_0_20px_rgba(35,247,221,0.25)]"
+                >
+                  <Globe className="w-4 h-4" />
+                  Send to Vault
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
 
 
