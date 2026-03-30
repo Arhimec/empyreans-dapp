@@ -104,11 +104,15 @@ export default function Dashboard() {
     });
   },[nfts, searchQuery, selectedCategory, selectedValue]);
 
-  // Utility: Hex Encoding without Buffer for browser safety
+  // Utility: Hex Encoding and Padding
   const toHex = (str: string) => {
     return Array.from(str)
       .map(c => c.charCodeAt(0).toString(16).padStart(2, '0'))
       .join('');
+  };
+
+  const padHex = (hex: string) => {
+    return hex.length % 2 === 0 ? hex : '0' + hex;
   };
 
   // 3. Individual Transfer Action
@@ -118,7 +122,7 @@ export default function Dashboard() {
     try {
       const receiverAddressHex = Address.fromBech32(VAULT_ADDRESS).hex();
       const tokenIdentifierHex = toHex(nft.collection);
-      const nonceHex = nft.nonce.toString(16).padStart(2, '0');
+      const nonceHex = padHex(nft.nonce.toString(16));
       const quantityHex = '01'; 
       
       const txData = `ESDTNFTTransfer@${tokenIdentifierHex}@${nonceHex}@${quantityHex}@${receiverAddressHex}`;
@@ -151,17 +155,18 @@ export default function Dashboard() {
 
     try {
       const receiverAddressHex = Address.fromBech32(VAULT_ADDRESS).hex();
-      const numTokensHex = selectedNfts.length.toString(16).padStart(2, '0');
+      const numTokensHex = padHex(selectedNfts.length.toString(16));
       
       // MultiESDTNFTTransfer@<receiver>@<num_tokens>@<token1_id>@<nonce1>@<amount1>@...
       let txData = `MultiESDTNFTTransfer@${receiverAddressHex}@${numTokensHex}`;
 
       selectedNfts.forEach(nft => {
         const tokenIdentifierHex = toHex(nft.collection);
-        const nonceHex = nft.nonce.toString(16).padStart(2, '0');
+        const nonceHex = padHex(nft.nonce.toString(16));
         const quantityHex = '01'; // Standard NFT amount is 1
         txData += `@${tokenIdentifierHex}@${nonceHex}@${quantityHex}`;
       });
+
 
       const bulkTransaction = {
         value: '0',
