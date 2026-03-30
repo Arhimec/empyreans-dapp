@@ -206,9 +206,8 @@ export default function Dashboard() {
       </AnimatePresence>
 
       <main className="relative pt-20">
-        <Hero />
-        
         <div className="max-w-7xl mx-auto px-6 pb-32">
+
             <NFTExplorer 
                 nfts={filteredNfts}
                 loading={loading}
